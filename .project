@@ -1,6 +1,9 @@
 # Gambas Project File 3.0
 Title=MD5
 Startup=Main
-Version=0.0.1
+Version=1.0.0
+Description="Gambas implementation of the MD5 Message Digest Algorithm by coding the algorithm directly (not using a call to a built-in or external hashing library)"
+Authors="Planet of the Embedded Systems\nWeb: https://www.embsys-planet.it/wiki\nMail: scorpio@embsys-planet.it"
+TabSize=2
 Language=en_US
 Packager=1
