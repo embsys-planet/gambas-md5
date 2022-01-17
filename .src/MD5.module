@@ -1,0 +1,171 @@
+' Gambas module file
+
+' Filename: md5.module
+' Create Date: 17 January 2022
+'
+' Versions
+'   1.00 - First version (17/01/2022)
+'
+' Implementation of the MD5 Message Digest Algorithm by coding the algorithm 
+' directly (not using a call to a built-in or external hashing library)
+'
+' Copyright(C)2022 EmbSys-Planet (DOT) it
+'
+' This program Is Free software: you can redistribute it And / Or modify
+' it under the terms Of the GNU General Public License As Published by
+' the Free Software Foundation, either version 3 Of the License, Or
+' (at your option)any later version.
+'
+' This program Is Distributed In the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty Of
+' MERCHANTABILITY Or FITNESS For A PARTICULAR PURPOSE.See the
+' GNU General Public License For more details.
+'
+' You should have received a Copy Of the GNU General Public License
+' along With this program.If Not, see < https://www.gnu.org/licenses/>.
+
+Private Sub RotateLeft(ByRef x As Long, n As Long)
+  x = UInteger(Shl(x, n) + Shr(x, 32 - (n)))
+End Sub
+
+Private Function UInteger(val As Long) As Long
+  Return val And &HFFFFFFFF
+End Function
+
+Private Function LongToByteArray(value As Long) As Byte[]
+  ' Function Variables
+  Dim serializer As Stream
+  Dim bytesLong As New Byte[8]
+
+  serializer = Memory bytesLong.Data For Write
+
+  ' Convert long
+  Write #serializer, value As Long
+  
+  Return bytesLong
+End Function
+
+Public Function MD5(to_hash As Byte[]) As String
+  ' Function Variables
+  Dim _message As Byte[] = to_hash   ' Data are passed as ByRef's
+
+  Dim sx As Byte
+  Dim s As Byte[] = [7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21]
+ 
+  Dim K As Long[] = [&H0d76aa478, &H0e8c7b756, &H0242070db, &H0c1bdceee, &H0f57c0faf, &H04787c62a, &H0a8304613, &H0fd469501, &H0698098d8, &H08b44f7af, &H0ffff5bb1, &H0895cd7be, &H06b901122, &H0fd987193, &H0a679438e, &H049b40821, &H0f61e2562, &H0c040b340, &H0265e5a51, &H0e9b6c7aa, &H0d62f105d, &H002441453, &H0d8a1e681, &H0e7d3fbc8, &H021e1cde6, &H0c33707d6, &H0f4d50d87, &H0455a14ed, &H0a9e3e905, &H0fcefa3f8, &H0676f02d9, &H08d2a4c8a, &H0fffa3942, &H08771f681, &H06d9d6122, &H0fde5380c, &H0a4beea44, &H04bdecfa9, &H0f6bb4b60, &H0bebfbc70, &H0289b7ec6, &H0eaa127fa, &H0d4ef3085, &H004881d05, &H0d9d4d039, &H0e6db99e5, &H01fa27cf8, &H0c4ac5665, &H0f4292244, &H0432aff97, &H0ab9423a7, &H0fc93a039, &H0655b59c3, &H08f0ccc92, &H0ffeff47d, &H085845dd1, &H06fa87e4f, &H0fe2ce6e0, &H0a3014314, &H04e0811a1, &H0f7537e82, &H0bd3af235, &H02ad7d2bb, &H0eb86d391]
+
+  ' Initialize variables
+  Dim A As Long
+  Dim a0 As Long = &H067452301
+  Dim B As Long
+  Dim b0 As Long = &H0efcdab89
+  Dim C As Long
+  Dim c0 As Long = &H098badcfe
+  Dim D As Long
+  Dim d0 As Long = &H010325476
+  Dim dtemp As Long
+  Dim F As Long
+  Dim g As Long
+  Dim _Temp As Long
+
+  Dim i As Long
+  Dim j As Long
+
+  Dim l As Long = _message.Count
+
+  ' Set the first bit after the message to 1
+  _message.Add(Shl(1, 7))  ' message = message + Chr(1 Shl 7)
+
+  ' Add one char to the length
+  Dim padding As Long = 64 - ((l + 1) Mod (512 \ 8)) ' 512 \ 8 = 64 char.
+
+  ' Check if we have enough room for inserting the length
+  If padding < 8 Then 
+    padding = padding + 64
+  Endif
+
+  _message.Resize(_message.Count + padding) ' message = message + String(padding, Chr(0))   ' adjust length
+  Dim l1 As Long = _message.Count          ' new length
+
+  l = l * 8    ' orignal length in bits
+
+  ' create ubyte ptr to point to l ( = length in bits)
+  Dim lByte As Byte[] = LongToByteArray(l)
+
+  For i = 0 To 7  'copy length of message to the last 8 bytes
+    _message[l1 - 8 + i] = lByte[i]
+  Next
+ 
+  For j = 0 To (l1 - 1) \ 64 ' split into block of 64 bytes
+ 
+    A = UInteger(a0)
+    B = UInteger(b0)
+    C = UInteger(c0)
+    D = UInteger(d0)
+ 
+    ' break chunk into 16 32bit uinteger
+    Dim _ptr As Pointer = _message.Data + (j * 64)
+ 
+    For i = 0 To 63
+      Select Case i
+        Case 0 To 15
+          F = (B And C) Or ((Not B) And D)
+          g = i
+        Case 16 To 31
+          F = (B And D) Or (C And (Not D))
+          g = (i * 5 + 1) Mod 16
+        Case 32 To 47
+          F = (B Xor C Xor D)
+          g = (i * 3 + 5) Mod 16
+        Case 48 To 63
+          Dim _d As Long = UInteger(Not D)
+          F = (C Xor (B Or (_d)))
+          g = (i * 7) Mod 16
+      End Select
+
+      dtemp = D
+      D = C
+      C = B
+
+      Dim _conv As Long = Int@(_ptr + (g * 4))
+      Dim _k As Long = K[i]
+
+      Dim sum As Long = A '+ F + _k + _conv
+      sum = sum + F
+      sum = sum + _k
+      sum = sum + _conv
+
+      _Temp = UInteger(sum)
+      RotateLeft(ByRef _Temp, s[i])
+      B = UInteger(B + _Temp)
+      A = dtemp
+    Next
+ 
+    a0 = UInteger(a0 + A)
+    b0 = UInteger(b0 + B)
+    c0 = UInteger(c0 + C)
+    d0 = UInteger(d0 + D)
+  Next
+
+  Dim answer As String
+  ' convert a0, b0, c0 and d0 in hex, then add, low order first
+  Dim s1 As String = Hex(a0, 8)
+  For i = 7 To 1 Step -2
+    answer = answer & Mid(s1, i, 2)
+  Next
+  s1 = Hex(b0, 8)
+  For i = 7 To 1 Step -2
+    answer = answer & Mid(s1, i, 2)
+  Next
+  s1 = Hex(c0, 8)
+  For i = 7 To 1 Step -2
+    answer = answer & Mid(s1, i, 2)
+  Next
+  s1 = Hex(d0, 8)
+  For i = 7 To 1 Step -2
+    answer = answer & Mid(s1, i, 2)
+  Next
+ 
+  Return LCase(answer)
+ 
+End Function

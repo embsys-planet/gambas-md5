@@ -1,0 +1,76 @@
+' Gambas module file
+
+' Filename: Main.module
+' Create Date: 17 January 2022
+'
+' Versions
+'   1.00 - First version (17/01/2022)
+'
+' Example application how use MD5 function
+'
+' Copyright(C)2022 EmbSys-Planet (DOT) it
+'
+' This program Is Free software: you can redistribute it And / Or modify
+' it under the terms Of the GNU General Public License As Published by
+' the Free Software Foundation, either version 3 Of the License, Or
+' (at your option)any later version.
+'
+' This program Is Distributed In the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty Of
+' MERCHANTABILITY Or FITNESS For A PARTICULAR PURPOSE.See the
+' GNU General Public License For more details.
+'
+' You should have received a Copy Of the GNU General Public License
+' along With this program.If Not, see < https://www.gnu.org/licenses/>.
+
+' Test results
+' 
+'                        hash code <= = string 
+' d41d8cd98f00b204e9800998ecf8427e <= = ""  
+' 0cc175b9c0f1b6a831c399e269772661 <= = "a"
+' 900150983cd24fb0d6963f7d28e17f72 <= = "abc"
+' f96b697d7cb7938d525a2f31aaf161d0 <= = "message digest"
+' c3fcd3d76192e4007dfb496cca67e13b <= = "abcdefghijklmnopqrstuvwxyz"
+' d174ab98d277d9f5a5611c2c9f419d9f <= = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+' 57edf4a22be3c955ac49da2e2107b67a <= = "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+
+Public Sub Main()
+
+  Dim DT As Byte[] = Byte[].FromString("")
+
+  Print "MD5 Hash for ''"
+  Print MD5.MD5(DT)
+  Print
+
+  DT = Byte[].FromString("a")
+  Print "MD5 Hash for 'a'"
+  Print MD5.MD5(DT)
+  Print
+  
+
+
+  DT = Byte[].FromString("abc")
+  Print "MD5 Hash for 'abc'"
+  Print MD5.MD5(DT)
+  Print
+
+  DT = Byte[].FromString("message digest")
+  Print "MD5 Hash for 'message digest'"
+  Print MD5.MD5(DT)
+  Print
+
+  DT = Byte[].FromString("abcdefghijklmnopqrstuvwxyz")
+  Print "MD5 Hash for 'abcdefghijklmnopqrstuvwxyz'"
+  Print MD5.MD5(DT)
+  Print
+
+  DT = Byte[].FromString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+  Print "MD5 Hash for 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'"
+  Print MD5.MD5(DT)
+  Print
+
+  DT = Byte[].FromString("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
+  Print "MD5 Hash for '12345678901234567890123456789012345678901234567890123456789012345678901234567890'"
+  Print MD5.MD5(DT)
+  Print
+End
